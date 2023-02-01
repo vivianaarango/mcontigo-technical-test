@@ -20,9 +20,16 @@ func main() {
 	newsletterHandler := handler.Build()
 
 	libGroup := r.Group("/newsletter")
-	libGroup.GET("", newsletterHandler.Get)
+	libGroup.GET("/subscriptions", newsletterHandler.Get)
+	libGroup.POST("/subscription/create", newsletterHandler.Create)
 
-	err := r.Run(":" + os.Getenv("PORT"))
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		// we defines a default port.
+		port = "8000"
+	}
+
+	err := r.Run(":" + port)
 	if err != nil {
 		panic(err)
 	}

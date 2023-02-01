@@ -1,7 +1,11 @@
 package handler
 
 import (
+	"net/http"
+
+	"git.mcontigo.com/safeplay/newsletter-api/pkg/newsletter"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // nolint:lll // godoc
@@ -18,5 +22,32 @@ import (
 // @Success      200  {array}  handler.ResponseDoc
 // nolint:gocyclo //error checking branches
 func (h *handler) Get(ctx *gin.Context) {
-	panic("implement me")
+	r := &request{}
+
+	if err := ctx.ShouldBindJSON(r); err != nil {
+		return
+	}
+
+	userID, err := uuid.Parse(r.Filter.UserID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, "user id is not valid")
+		return
+	}
+
+	blogID, err := uuid.Parse(r.Filter.BlogID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, "blog id is not valid")
+		return
+	}
+
+	var interests []newsletter.Interest
+	// TODO get interest to sent
+
+	subscriptions, err := h.svc.Get(ctx, userID, blogID, interests, r.Pagination.Page, r.Pagination.MaxPageSize)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, "newsletter subscriptions is not found")
+		return
+	}
+
+	ctx.JSON(http.StatusOK, subscriptions)
 }

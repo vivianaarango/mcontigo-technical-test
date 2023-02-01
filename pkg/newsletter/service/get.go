@@ -12,6 +12,22 @@ func (s *service) Get(
 	UserID uuid.UUID,
 	BlogID uuid.UUID,
 	Interests []newsletter.Interest,
+	Page int,
+	MaxPageSize int,
 ) (*newsletter.Result[*newsletter.Subscription], error) {
-	panic("implement me")
+	result, err := s.repo.Search(ctx, UserID, BlogID, Interests, MaxPageSize, Page)
+	if err != nil {
+		return &newsletter.Result[*newsletter.Subscription]{}, err
+	}
+
+	response := &newsletter.Result[*newsletter.Subscription]{
+		Total: len(result),
+		Pages: len(result) / MaxPageSize,
+		Page: newsletter.Page[*newsletter.Subscription]{
+			Number:   Page,
+			Elements: result,
+		},
+	}
+
+	return response, nil
 }

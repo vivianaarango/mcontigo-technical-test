@@ -12,5 +12,13 @@ type Service interface {
 		UserID uuid.UUID,
 		BlogID uuid.UUID,
 		Interests []Interest,
+		Page int,
+		MaxPageSize int,
 	) (*Result[*Subscription], error)
+	Create(
+		ctx context.Context,
+		UserID uuid.UUID,
+		BlogID uuid.UUID,
+		Interests []Interest,
+	) (err error)
 }
